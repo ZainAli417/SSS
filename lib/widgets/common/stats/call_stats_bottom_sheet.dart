@@ -23,7 +23,7 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
   @override
   void initState() {
     statsTimer =
-        Timer.periodic(const Duration(seconds: 1), (_) => {updateStats()});
+        Timer.periodic(const Duration(seconds: 1), (_) {updateStats();});
     super.initState();
     updateStats();
   }
@@ -106,8 +106,7 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                     child: Padding(
                       padding: const EdgeInsets.all(4),
                       child: Text(audioStats?['rtt'] != null
-                          ? (audioStats?['rtt'] as double).toInt().toString() +
-                              " ms"
+                          ? "${(audioStats?['rtt'] as double).toInt()} ms"
                           : "-"),
                     ),
                   ),
@@ -115,8 +114,7 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                       child: Padding(
                     padding: const EdgeInsets.all(4),
                     child: Text(videoStats?['rtt'] != null
-                        ? (videoStats?['rtt'] as double).toInt().toString() +
-                            " ms"
+                        ? "${(videoStats?['rtt'] as double).toInt()} ms"
                         : "-"),
                   ))
                 ]),
@@ -127,19 +125,17 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                       child: Padding(
                           padding: const EdgeInsets.all(4),
                           child: Text(audioStats?['jitter'] != null
-                              ? (audioStats?['jitter'])
+                              ? "${(audioStats?['jitter'])
                                       .toString()
-                                      .split('.')[0] +
-                                  " ms"
+                                      .split('.')[0]} ms"
                               : "-"))),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
                           child: Text(videoStats?['jitter'] != null
-                              ? (videoStats?['jitter'])
+                              ? "${(videoStats?['jitter'])
                                       .toString()
-                                      .split('.')[0] +
-                                  " ms"
+                                      .split('.')[0]} ms"
                               : "-")))
                 ]),
                 TableRow(children: [
@@ -149,21 +145,19 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                       child: Padding(
                           padding: const EdgeInsets.all(4),
                           child: Text(audioStats?['packetsLost'] != null
-                              ? ((audioStats?['packetsLost'] ?? 0.0) /
+                              ? "${((audioStats?['packetsLost'] ?? 0.0) /
                                               (audioStats?['totalPackets'] ?? 1)
                                           as double)
-                                      .toStringAsFixed(2) +
-                                  " %"
+                                      .toStringAsFixed(2)} %"
                               : "-"))),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
                           child: Text(videoStats?['packetsLost'] != null
-                              ? ((videoStats?['packetsLost'] ?? 0.0) /
+                              ? "${((videoStats?['packetsLost'] ?? 0.0) /
                                               (videoStats?['totalPackets'] ?? 1)
                                           as double)
-                                      .toStringAsFixed(2) +
-                                  " %"
+                                      .toStringAsFixed(2)} %"
                               : "-")))
                 ]),
                 TableRow(children: [
@@ -195,8 +189,7 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                       child: Padding(
                           padding: const EdgeInsets.all(4),
                           child: Text(videoStats?['size']?['framerate'] != null
-                              ? (videoStats?['size']?['framerate']).toString() +
-                                  ""
+                              ? "${videoStats?['size']?['framerate']}"
                               : "-")))
                 ]),
                 TableRow(children: [
@@ -211,9 +204,7 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                           child: Text(videoStats?['size']?['width'] != null &&
                                   videoStats?['size']?['height'] != null &&
                                   videoStats?['size']?['height'] != 'null'
-                              ? (videoStats?['size']?['width']).toString() +
-                                  "x" +
-                                  (videoStats?['size']?['height']).toString()
+                              ? "${videoStats?['size']?['width']}x${videoStats?['size']?['height']}"
                               : "-")))
                 ]),
                 TableRow(children: [

@@ -49,8 +49,7 @@ class _CallStatsState extends State<CallStats> {
                     ),
                     context: context,
                     builder: (_) {
-                      return CallStatsBottomSheet(
-                          participant: widget.participant);
+                      return CallStatsBottomSheet(participant: widget.participant);
                     });
                 bottomSheetController?.closed.then((value) {
                   setState(() {

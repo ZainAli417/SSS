@@ -15,9 +15,7 @@ class TeacherScreen extends StatefulWidget {
 
 class _TeacherScreenState extends State<TeacherScreen> {
   bool isRejoin = false;
-  get token =>
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiJhNmQ5OTI3NC1hMTIyLTRiYzMtYmJhOS0wNDYyOTcyNWNiMDQiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTczNjIyMzYzNywiZXhwIjoxODk0MDExNjM3fQ.TdZwUNK6jQ-SZjCvabdIvnnbpk2wWvSCruRSxLKEMsY';
-
+  get token => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiJhNmQ5OTI3NC1hMTIyLTRiYzMtYmJhOS0wNDYyOTcyNWNiMDQiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTczNjIyMzYzNywiZXhwIjoxODk0MDExNjM3fQ.TdZwUNK6jQ-SZjCvabdIvnnbpk2wWvSCruRSxLKEMsY';
   @override
   Widget build(BuildContext context) {
     final teacherProvider = Provider.of<TeacherProvider>(context);
@@ -79,7 +77,6 @@ class _TeacherScreenState extends State<TeacherScreen> {
           ),
           // Body Section with Firestore Data
           const SizedBox(height: 10),
-
           Center(
             child: Text('Click the arrow to visit the room',
                 style: GoogleFonts.poppins(fontSize: 14)),
@@ -114,12 +111,10 @@ class _TeacherScreenState extends State<TeacherScreen> {
                 } else {
                   // Process the list of documents
                   var meetings = snapshot.data!.docs;
-
                   return ListView.builder(
                     itemCount: meetings.length,
                     itemBuilder: (context, index) {
                       var data = meetings[index].data() as Map<String, dynamic>;
-
                       var roomName = data['room_name'] ?? 'Unknown Room';
                       var roomId = data['room_id'] ?? 'N/A';
                       var assignedTo = data['assigned_to'] ?? 'Unassigned';
