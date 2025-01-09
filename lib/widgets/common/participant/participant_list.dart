@@ -80,7 +80,6 @@ class _ParticipantListState extends State<ParticipantList> {
         setState(() => _participants = newParticipants);
       }
     });
-
     meeting.on(Events.participantLeft, (participantId) {
       if (mounted) {
         final newParticipants = _participants;
