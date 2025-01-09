@@ -51,7 +51,7 @@ class _ParticipantListItemState extends State<ParticipantListItem> {
               borderRadius: BorderRadius.circular(30),
               border: Border.all(color: black500),
             ),
-            child: const Icon(Icons.person),
+            child: const Icon(Icons.person, color: Colors.white,),
           ),
           Expanded(
               child: Text(
