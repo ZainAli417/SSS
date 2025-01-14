@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:touch_ripple_effect/touch_ripple_effect.dart';
 import 'package:videosdk_flutter_example/utils/spacer.dart';
 
 import '../../../constants/colors.dart';
+import '../../../providers/role_provider.dart';
 
 // Meeting ActionBar
 class MeetingActionBar extends StatelessWidget {
@@ -43,34 +45,43 @@ class MeetingActionBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          PopupMenuButton(
-              position: PopupMenuPosition.under,
-              padding: const EdgeInsets.all(0),
-              color: black700,
-              icon: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: red),
-                  color: red,
-                ),
-                padding: const EdgeInsets.all(8),
-                child: const Icon(
-                  Icons.call_end,
-                  size: 30,
-                  color: Colors.white,
-                ),
-              ),
-              offset: const Offset(0, -185),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: (value) => {
-                    if (value == "leave")
-                      onCallLeaveButtonPressed()
-                    else if (value == "end")
-                      onCallEndButtonPressed()
+          // PopupMenuButton shown conditionally
+          Consumer<RoleProvider>(
+            builder: (context, roleProvider, child) {
+              if (roleProvider.isTeacher || roleProvider.isPrincipal) {
+                return PopupMenuButton(
+                  position: PopupMenuPosition.under,
+                  padding: const EdgeInsets.all(0),
+                  color: Colors
+                      .black54, // Replace `black700` with the appropriate color
+                  icon: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: Colors
+                              .red), // Replace `red` with the appropriate color
+                      color: Colors
+                          .red, // Replace `red` with the appropriate color
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: const Icon(
+                      Icons.call_end,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                  ),
+                  offset: const Offset(0, -185),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  onSelected: (value) {
+                    if (value == "leave") {
+                      onCallLeaveButtonPressed();
+                    } else if (value == "end") {
+                      onCallEndButtonPressed();
+                    }
                   },
-              itemBuilder: (context) => <PopupMenuEntry>[
+                  itemBuilder: (context) => <PopupMenuEntry>[
                     _buildMeetingPoupItem(
                       "leave",
                       "Leave",
@@ -84,7 +95,14 @@ class MeetingActionBar extends StatelessWidget {
                       "End call for all participants",
                       SvgPicture.asset("assets/ic_end.svg"),
                     ),
-                  ]),
+                  ],
+                );
+              } else {
+                // Return an empty container if the conditions are not met
+                return SizedBox.shrink();
+              }
+            },
+          ),
 
           // Mic Control
           TouchRippleEffect(
@@ -143,7 +161,7 @@ class MeetingActionBar extends StatelessWidget {
             ),
           ),
 
-          TouchRippleEffect(
+          /* TouchRippleEffect(
             borderRadius: BorderRadius.circular(12),
             rippleColor: primaryColor,
             onTap: onChatButtonPressed,
@@ -154,66 +172,76 @@ class MeetingActionBar extends StatelessWidget {
                 color: primaryColor,
               ),
               padding: const EdgeInsets.all(10),
-              child: SvgPicture.asset(
+             child: SvgPicture.asset(
                 "assets/ic_chat.svg",
                 width: 26,
                 height: 26,
                 color: Colors.white,
               ),
             ),
-          ),
+          ),*/
 
           // More options
-          PopupMenuButton(
-              position: PopupMenuPosition.under,
-              padding: const EdgeInsets.all(0),
-              color: black700,
-              icon: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: secondaryColor),
-                  // color: red,
-                ),
-                padding: const EdgeInsets.all(8),
-                child: const Icon(
-                  Icons.more_vert,
-                  size: 30,
-                  color: Colors.white,
-                ),
-              ),
-              offset: const Offset(0, -250),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: (value) => {onMoreOptionSelected(value.toString())},
-              itemBuilder: (context) => <PopupMenuEntry>[
-                    _buildMeetingPoupItem(
-                      "recording",
-                      recordingState == "RECORDING_STARTED"
-                          ? "Stop Recording"
-                          : recordingState == "RECORDING_STARTING"
-                              ? "Recording is starting"
-                              : "Start Recording",
-                      null,
-                      SvgPicture.asset("assets/ic_recording.svg"),
+          Consumer<RoleProvider>(
+            builder: (context, roleProvider, child) {
+              if (roleProvider.isTeacher || roleProvider.isPrincipal) {
+                return PopupMenuButton(
+                    position: PopupMenuPosition.under,
+                    padding: const EdgeInsets.all(0),
+                    color: black700,
+                    icon: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: secondaryColor),
+                        // color: red,
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(
+                        Icons.more_vert,
+                        size: 30,
+                        color: Colors.white,
+                      ),
                     ),
-                    const PopupMenuDivider(),
-                    _buildMeetingPoupItem(
-                      "screenshare",
-                      isScreenShareEnabled
-                          ? "Stop Screen Share"
-                          : "Start Screen Share",
-                      null,
-                      SvgPicture.asset("assets/ic_screen_share.svg"),
+                    offset: const Offset(0, -250),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const PopupMenuDivider(),
-                    _buildMeetingPoupItem(
-                      "participants",
-                      "Participants",
-                      null,
-                      SvgPicture.asset("assets/ic_participants.svg"),
-                    ),
-                  ]),
+                    onSelected: (value) =>
+                        {onMoreOptionSelected(value.toString())},
+                    itemBuilder: (context) => <PopupMenuEntry>[
+                          _buildMeetingPoupItem(
+                            "recording",
+                            recordingState == "RECORDING_STARTED"
+                                ? "Stop Recording"
+                                : recordingState == "RECORDING_STARTING"
+                                    ? "Recording is starting"
+                                    : "Start Recording",
+                            null,
+                            SvgPicture.asset("assets/ic_recording.svg"),
+                          ),
+                          const PopupMenuDivider(),
+                          _buildMeetingPoupItem(
+                            "screenshare",
+                            isScreenShareEnabled
+                                ? "Stop Screen Share"
+                                : "Start Screen Share",
+                            null,
+                            SvgPicture.asset("assets/ic_screen_share.svg"),
+                          ),
+                          const PopupMenuDivider(),
+                          _buildMeetingPoupItem(
+                            "participants",
+                            "Participants",
+                            null,
+                            SvgPicture.asset("assets/ic_participants.svg"),
+                          ),
+                        ]);
+              } else {
+                // Return an empty container if the conditions are not met
+                return SizedBox.shrink();
+              }
+            },
+          ),
         ],
       ),
     );

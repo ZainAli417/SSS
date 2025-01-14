@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:videosdk/videosdk.dart';
 import 'package:videosdk_flutter_example/constants/colors.dart';
@@ -12,6 +13,7 @@ import 'package:videosdk_flutter_example/utils/spacer.dart';
 import 'package:videosdk_flutter_example/utils/toast.dart';
 import 'package:videosdk_flutter_example/widgets/common/app_bar/recording_indicator.dart';
 
+import '../../../providers/role_provider.dart';
 import '../../../providers/teacher_provider.dart';
 
 class MeetingAppBar extends StatefulWidget {
@@ -77,79 +79,95 @@ class MeetingAppBarState extends State<MeetingAppBar> {
   @override
   Widget build(BuildContext context) {
     return AnimatedCrossFade(
-        duration: const Duration(milliseconds: 300),
-        crossFadeState: !widget.isFullScreen
-            ? CrossFadeState.showFirst
-            : CrossFadeState.showSecond,
-        secondChild: const SizedBox.shrink(),
-        firstChild: Padding(
-          padding: const EdgeInsets.fromLTRB(12.0, 10.0, 8.0, 0.0),
-          child: Row(
-            children: [
-              if (widget.recordingState == "RECORDING_STARTING" ||
-                  widget.recordingState == "RECORDING_STOPPING" ||
-                  widget.recordingState == "RECORDING_STARTED")
-                RecordingIndicator(recordingState: widget.recordingState),
-              if (widget.recordingState == "RECORDING_STARTING" ||
-                  widget.recordingState == "RECORDING_STOPPING" ||
-                  widget.recordingState == "RECORDING_STARTED")
-                const HorizontalSpacer(),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          widget.meeting.id,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        GestureDetector(
-                          child: const Padding(
-                            padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-                            child: Icon(
-                              Icons.copy,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () {
-                            Clipboard.setData(
-                                ClipboardData(text: widget.meeting.id));
-                            showSnackBarMessage(
-                                message: "Meeting ID has been copied.",
-                                context: context);
-                          },
-                        ),
-                      ],
-                    ),
-                    // VerticalSpacer(),
-                    Text(
-                      elapsedTime == null
-                          ? "00:00:00"
-                          : elapsedTime.toString().split(".").first,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey),
-                    )
-                  ],
-                ),
+      duration: const Duration(milliseconds: 300),
+      crossFadeState: !widget.isFullScreen
+          ? CrossFadeState.showFirst
+          : CrossFadeState.showSecond,
+      secondChild: const SizedBox.shrink(),
+      firstChild: Padding(
+        padding: const EdgeInsets.fromLTRB(12.0, 10.0, 8.0, 0.0),
+        child: Row(
+          children: [
+            // Go Back Arrow
+            IconButton(
+              icon: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
               ),
-              Expanded(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            if (widget.recordingState == "RECORDING_STARTING" ||
+                widget.recordingState == "RECORDING_STOPPING" ||
+                widget.recordingState == "RECORDING_STARTED")
+              RecordingIndicator(recordingState: widget.recordingState),
+            if (widget.recordingState == "RECORDING_STARTING" ||
+                widget.recordingState == "RECORDING_STOPPING" ||
+                widget.recordingState == "RECORDING_STARTED")
+              const HorizontalSpacer(),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        widget.meeting.id,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      GestureDetector(
+                        child: const Padding(
+                          padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                          child: Icon(
+                            Icons.copy,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                        onTap: () {
+                          Clipboard.setData(
+                              ClipboardData(text: widget.meeting.id));
+                          showSnackBarMessage(
+                              message: "Meeting ID has been copied.",
+                              context: context);
+                        },
+                      ),
+                    ],
+                  ),
+                  /*Text(
+                    elapsedTime == null
+                        ? "00:00:00"
+                        : elapsedTime.toString().split(".").first,
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey),
+                  )*/
+                ],
+              ),
+            ),
+            Consumer<RoleProvider>(
+              builder: (context, roleProvider, child) {
+                if (roleProvider.isPrincipal) {
+                  return Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         DropdownButtonFormField<String>(
                           value: selectedTeacher,
-                          hint: const Text(
-                            "Assign Meeting To",
-                            style: TextStyle(color: Colors.grey),
+                          hint:  Text(
+                            "Assign Meeting",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
                           ),
                           icon: const Icon(Icons.arrow_drop_down,
                               color: Colors.white),
@@ -164,8 +182,8 @@ class MeetingAppBarState extends State<MeetingAppBar> {
                                   const BorderSide(color: Colors.white70),
                             ),
                             contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 10,
+                              horizontal: 8,
+                              vertical: 8,
                             ),
                           ),
                           items: teacherList.map((String teacher) {
@@ -185,27 +203,31 @@ class MeetingAppBarState extends State<MeetingAppBar> {
                         ),
                       ],
                     ),
-                  ),
-
-
-
-              IconButton(
-                icon: SvgPicture.asset(
-                  "assets/ic_switch_camera.svg",
-                  height: 24,
-                  width: 24,
-                ),
-                onPressed: () {
-                  VideoDeviceInfo? newCam = cameras?.firstWhere((camera) =>
-                      camera.deviceId != widget.meeting.selectedCam?.deviceId);
-                  if (newCam != null) {
-                    widget.meeting.changeCam(newCam);
-                  }
-                },
+                  );
+                } else {
+                  // Return an empty container if the conditions are not met
+                  return SizedBox.shrink();
+                }
+              },
+            ),
+            IconButton(
+              icon: SvgPicture.asset(
+                "assets/ic_switch_camera.svg",
+                height: 24,
+                width: 24,
               ),
-            ],
-          ),
-        ));
+              onPressed: () {
+                VideoDeviceInfo? newCam = cameras?.firstWhere((camera) =>
+                    camera.deviceId != widget.meeting.selectedCam?.deviceId);
+                if (newCam != null) {
+                  widget.meeting.changeCam(newCam);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void savedata(String teacher) async {

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_framework/breakpoint.dart';
 import 'package:responsive_framework/responsive_breakpoints.dart';
 import 'package:videosdk_flutter_example/providers/profile_provider.dart';
+import 'package:videosdk_flutter_example/providers/role_provider.dart';
 import 'package:videosdk_flutter_example/providers/shedule_provider.dart';
 import 'package:videosdk_flutter_example/providers/splash_provider.dart';
 import 'package:videosdk_flutter_example/providers/teacher_provider.dart';
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TeacherProvider()),
         ChangeNotifierProvider(create: (_) => ScheduleProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => RoleProvider()),
 
  ],
       child: MaterialApp(

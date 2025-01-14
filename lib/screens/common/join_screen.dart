@@ -4,13 +4,17 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:videosdk/videosdk.dart';
+import 'package:videosdk_flutter_example/screens/TeacherScreen.dart';
 import 'package:videosdk_flutter_example/screens/conference-call/conference_meeting_screen.dart';
 import 'package:videosdk_flutter_example/utils/api.dart';
 import 'package:videosdk_flutter_example/widgets/common/joining/join_options.dart';
 import '../../constants/colors.dart';
+import '../../providers/role_provider.dart';
 import '../../utils/toast.dart';
 import '../../widgets/common/joining/join_view.dart';
+import '../SplashScreen.dart';
 import '../one-to-one/one_to_one_meeting_screen.dart';
 import '../../widgets/common/pre_call/dropdowns_Web.dart';
 import '../../widgets/common/pre_call/selectAudioDevice.dart';
@@ -251,77 +255,106 @@ class _JoinScreenState extends State<JoinScreen> with WidgetsBindingObserver {
         child: Scaffold(
           appBar: !kIsWeb && (Platform.isAndroid || Platform.isIOS)
               ? AppBar(
-                  flexibleSpace: Align(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 40, 10, 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.volume_up,
-                              size: 27,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              showModalBottomSheet<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Container(
-                                      color: black750,
-                                      child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 10),
-                                          child: SelectAudioDevice(
-                                            isMicrophonePermissionAllowed:
-                                                isMicrophonePermissionAllowed,
-                                            selectedAudioOutputDevice:
-                                                selectedAudioOutputDevice,
-                                            audioDevices: audioDevices,
-                                            onAudioDeviceSelected:
-                                                updateselectedAudioOutputDevice,
-                                          )));
-                                },
-                              );
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.camera_alt_rounded,
-                              size: 27,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              showModalBottomSheet<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    color: black750,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      child: SelectVideoDevice(
-                                        isCameraPermissionAllowed:
-                                            isCameraPermissionAllowed,
-                                        selectedVideoDevice:
-                                            selectedVideoDevice,
-                                        videoDevices: videoDevices,
-                                        onVideoDeviceSelected:
-                                            updateSelectedVideoDevice,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ],
+            flexibleSpace: Align(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 40, 10, 0), // Adjust padding to include space for back icon
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align back icon and other icons at ends
+                  children: [
+                    // Back Icon
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        size: 27,
+                        color: Colors.white,
                       ),
+                      onPressed: () {
+                        final roleProvider = Provider.of<RoleProvider>(context, listen: false);
+
+                        if (roleProvider.isPrincipal) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => TeacherScreen()),
+                          );
+                        } else {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => SplashScreen()),
+                          );
+                        }
+                      },
                     ),
-                  ),
-                  backgroundColor: black750,
-                  elevation: 0,
-                )
+
+                    Row(
+                      children: [
+                        // Volume Icon
+                        IconButton(
+                          icon: const Icon(
+                            Icons.volume_up,
+                            size: 27,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            showModalBottomSheet<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  color: black750,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    child: SelectAudioDevice(
+                                      isMicrophonePermissionAllowed:
+                                      isMicrophonePermissionAllowed,
+                                      selectedAudioOutputDevice:
+                                      selectedAudioOutputDevice,
+                                      audioDevices: audioDevices,
+                                      onAudioDeviceSelected:
+                                      updateselectedAudioOutputDevice,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        // Camera Icon
+                        IconButton(
+                          icon: const Icon(
+                            Icons.camera_alt_rounded,
+                            size: 27,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            showModalBottomSheet<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  color: black750,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    child: SelectVideoDevice(
+                                      isCameraPermissionAllowed:
+                                      isCameraPermissionAllowed,
+                                      selectedVideoDevice: selectedVideoDevice,
+                                      videoDevices: videoDevices,
+                                      onVideoDeviceSelected: updateSelectedVideoDevice,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            backgroundColor: black750,
+            elevation: 0,
+          )
+
               : null,
           backgroundColor: primaryColor,
           body: SafeArea(

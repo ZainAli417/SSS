@@ -239,7 +239,7 @@ class _TeacherScreenState extends State<TeacherScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const JoinScreen()),
           );

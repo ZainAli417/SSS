@@ -22,8 +22,9 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
 
   @override
   void initState() {
-    statsTimer =
-        Timer.periodic(const Duration(seconds: 1), (_) {updateStats();});
+    statsTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      updateStats();
+    });
     super.initState();
     updateStats();
   }
@@ -70,7 +71,9 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                         Text(
                           " ${widget.participant.displayName} - Quality Metrics : ${score == null ? '-' : score! > 7 ? 'Good' : score! > 4 ? 'Average' : 'Poor'}",
                           style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.white),
                         ),
                       ],
                     ),
@@ -90,138 +93,260 @@ class _CallStatsBottomSheetState extends State<CallStatsBottomSheet> {
                   Padding(padding: EdgeInsets.all(4), child: Text("")),
                   Center(
                       child: Padding(
-                          padding: EdgeInsets.all(4), child: Text("Audio"))),
+                    padding: EdgeInsets.all(4),
+                    child: Text(
+                      "Audio",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white),
+                    ),
+                  )),
                   Center(
                       child: Padding(
                     padding: EdgeInsets.all(4.0),
-                    child: Text("Video"),
+                    child: Text(
+                      "Video",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white),
+                    ),
                   ))
                 ]),
                 TableRow(children: [
                   const Padding(
                     padding: EdgeInsets.all(4.0),
-                    child: Text("Latency"),
+                    child: Text(
+                      "Latency",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white),
+                    ),
                   ),
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.all(4),
-                      child: Text(audioStats?['rtt'] != null
-                          ? "${(audioStats?['rtt'] as double).toInt()} ms"
-                          : "-"),
+                      child: Text(
+                        audioStats?['rtt'] != null
+                            ? "${(audioStats?['rtt'] as double).toInt()} ms"
+                            : "-",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white),
+                      ),
                     ),
                   ),
                   Center(
                       child: Padding(
                     padding: const EdgeInsets.all(4),
-                    child: Text(videoStats?['rtt'] != null
-                        ? "${(videoStats?['rtt'] as double).toInt()} ms"
-                        : "-"),
+                    child: Text(
+                      videoStats?['rtt'] != null
+                          ? "${(videoStats?['rtt'] as double).toInt()} ms"
+                          : "-",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white),
+                    ),
                   ))
                 ]),
                 TableRow(children: [
                   const Padding(
-                      padding: EdgeInsets.all(4), child: Text("Jitter")),
+                      padding: EdgeInsets.all(4),
+                      child: Text(
+                        "Jitter",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white),
+                      )),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(audioStats?['jitter'] != null
-                              ? "${(audioStats?['jitter'])
-                                      .toString()
-                                      .split('.')[0]} ms"
-                              : "-"))),
+                          child: Text(
+                            audioStats?['jitter'] != null
+                                ? "${(audioStats?['jitter']).toString().split('.')[0]} ms"
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          ))),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(videoStats?['jitter'] != null
-                              ? "${(videoStats?['jitter'])
-                                      .toString()
-                                      .split('.')[0]} ms"
-                              : "-")))
+                          child: Text(
+                            videoStats?['jitter'] != null
+                                ? "${(videoStats?['jitter']).toString().split('.')[0]} ms"
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          )))
                 ]),
                 TableRow(children: [
                   const Padding(
-                      padding: EdgeInsets.all(4), child: Text("Packet Loss")),
+                      padding: EdgeInsets.all(4),
+                      child: Text(
+                        "Packet Loss",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white),
+                      )),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(audioStats?['packetsLost'] != null
-                              ? "${((audioStats?['packetsLost'] ?? 0.0) /
-                                              (audioStats?['totalPackets'] ?? 1)
-                                          as double)
-                                      .toStringAsFixed(2)} %"
-                              : "-"))),
+                          child: Text(
+                            audioStats?['packetsLost'] != null
+                                ? "${((audioStats?['packetsLost'] ?? 0.0) / (audioStats?['totalPackets'] ?? 1) as double).toStringAsFixed(2)} %"
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          ))),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(videoStats?['packetsLost'] != null
-                              ? "${((videoStats?['packetsLost'] ?? 0.0) /
-                                              (videoStats?['totalPackets'] ?? 1)
-                                          as double)
-                                      .toStringAsFixed(2)} %"
-                              : "-")))
+                          child: Text(
+                            videoStats?['packetsLost'] != null
+                                ? "${((videoStats?['packetsLost'] ?? 0.0) / (videoStats?['totalPackets'] ?? 1) as double).toStringAsFixed(2)} %"
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          )))
                 ]),
                 TableRow(children: [
                   const Padding(
-                      padding: EdgeInsets.all(4), child: Text("Bitrate")),
+                      padding: EdgeInsets.all(4),
+                      child: Text(
+                        "Bitrate",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white),
+                      )),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(audioStats?['bitrate'] != null
-                              ? "${(audioStats?['bitrate'])
-                                      .toString()
-                                      .split('.')[0]} kb/s"
-                              : "-"))),
+                          child: Text(
+                            audioStats?['bitrate'] != null
+                                ? "${(audioStats?['bitrate']).toString().split('.')[0]} kb/s"
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          ))),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(videoStats?['bitrate'] != null
-                              ? (videoStats?['bitrate']).toStringAsFixed(2) +
-                                  " kb/s"
-                              : "-")))
+                          child: Text(
+                            videoStats?['bitrate'] != null
+                                ? (videoStats?['bitrate']).toStringAsFixed(2) +
+                                    " kb/s"
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          )))
                 ]),
                 TableRow(children: [
                   const Padding(
-                      padding: EdgeInsets.all(4), child: Text("Frame Rate")),
+                      padding: EdgeInsets.all(4),
+                      child: Text(
+                        "Frame Rate",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white),
+                      )),
                   const Center(
                       child: Padding(
                           padding: EdgeInsets.all(4), child: Text("-"))),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(videoStats?['size']?['framerate'] != null
-                              ? "${videoStats?['size']?['framerate']}"
-                              : "-")))
+                          child: Text(
+                            videoStats?['size']?['framerate'] != null
+                                ? "${videoStats?['size']?['framerate']}"
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          )))
                 ]),
                 TableRow(children: [
                   const Padding(
-                      padding: EdgeInsets.all(4), child: Text("Resolution")),
+                      padding: EdgeInsets.all(4),
+                      child: Text(
+                        "Resolution",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white),
+                      )),
                   const Center(
                       child: Padding(
                           padding: EdgeInsets.all(4), child: Text("-"))),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(videoStats?['size']?['width'] != null &&
-                                  videoStats?['size']?['height'] != null &&
-                                  videoStats?['size']?['height'] != 'null'
-                              ? "${videoStats?['size']?['width']}x${videoStats?['size']?['height']}"
-                              : "-")))
+                          child: Text(
+                            videoStats?['size']?['width'] != null &&
+                                    videoStats?['size']?['height'] != null &&
+                                    videoStats?['size']?['height'] != 'null'
+                                ? "${videoStats?['size']?['width']}x${videoStats?['size']?['height']}"
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          )))
                 ]),
                 TableRow(children: [
                   const Padding(
-                      padding: EdgeInsets.all(4), child: Text("Codec")),
+                      padding: EdgeInsets.all(4),
+                      child: Text(
+                        "Codec",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white),
+                      )),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(audioStats?['codec'] != null
-                              ? (audioStats?['codec']).toString()
-                              : "-"))),
+                          child: Text(
+                            audioStats?['codec'] != null
+                                ? (audioStats?['codec']).toString()
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          ))),
                   Center(
                       child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Text(videoStats?['codec'] != null
-                              ? (videoStats?['codec']).toString()
-                              : "-")))
+                          child: Text(
+                            videoStats?['codec'] != null
+                                ? (videoStats?['codec']).toString()
+                                : "-",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white),
+                          )))
                 ]),
               ],
             )

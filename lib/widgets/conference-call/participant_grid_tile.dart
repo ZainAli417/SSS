@@ -131,12 +131,14 @@ class _ParticipantGridTileState extends State<ParticipantGridTile> {
                 ),
                 child: Text(widget.participant.isLocal
                     ? "You"
-                    : widget.participant.displayName)),
+                    : widget.participant.displayName,  style: const TextStyle(
+    fontWeight: FontWeight.bold, fontSize: 16,color: Colors.white),
+    )),
           ),
-          // Positioned(
-          //     top: 4,
-          //     left: 4,
-          //     child: CallStats(participant: widget.participant)),
+           Positioned(
+               top: 4,
+               left: 4,
+               child: CallStats(participant: widget.participant)),
         ],
       ),
     );

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:videosdk_flutter_example/constants/colors.dart';
 import 'package:videosdk_flutter_example/utils/spacer.dart';
 import 'package:videosdk_flutter_example/widgets/common/joining_details/joining_details.dart';
+
+import '../../../providers/role_provider.dart';
 
 class JoinOptions extends StatelessWidget {
   final bool? isJoinMeetingSelected;
@@ -26,7 +29,10 @@ class JoinOptions extends StatelessWidget {
     return Column(
       children: [
         if (isJoinMeetingSelected == null && isCreateMeetingSelected == null)
-          MaterialButton(
+    Consumer<RoleProvider>(
+        builder: (context, roleProvider, child) {
+      if (roleProvider.isPrincipal) {
+        return  MaterialButton(
             minWidth: ResponsiveValue<double>(context, conditionalValues: [
               Condition.equals(name: MOBILE, value: maxWidth / 1.3),
               Condition.equals(name: TABLET, value: maxWidth / 1.3),
@@ -42,9 +48,17 @@ class JoinOptions extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(vertical: 16),
             color: purple,
+
             child: const Text("Coordinator? Create Meeting", style: TextStyle(fontSize: 16, color: Colors.white)),
+
             onPressed: () => onOptionSelected(true),
-          ),
+          );
+          } else {
+          // Return an empty container if the conditions are not met
+          return SizedBox.shrink();
+          }
+        },
+    ),
         const VerticalSpacer(16),
         if (isJoinMeetingSelected == null && isCreateMeetingSelected == null)
           MaterialButton(

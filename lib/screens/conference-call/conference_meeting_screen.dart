@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:videosdk/videosdk.dart';
 import 'package:videosdk_flutter_example/constants/colors.dart';
@@ -20,6 +21,8 @@ import 'package:videosdk_flutter_example/widgets/common/screen_share/screen_sele
 import 'package:videosdk_flutter_example/widgets/conference-call/conference_participant_grid.dart';
 import 'package:videosdk_flutter_example/widgets/conference-call/conference_screenshare_view.dart';
 import 'package:videosdk_webrtc/flutter_webrtc.dart';
+
+import '../../providers/role_provider.dart';
 
 class ConferenceMeetingScreen extends StatefulWidget {
   final String meetingId, token, displayName;
@@ -146,13 +149,19 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                               isFullScreen: fullScreen,
                             ),
                       const Divider(),
-
-                      Center(
-                        child: _buildLogoutButton(),
+                      Consumer<RoleProvider>(
+                        builder: (context, roleProvider, child) {
+                          if (roleProvider.isPrincipal) {
+                            return Center(
+                              child: buildCreateMoreButton(),
+                            );
+                          } else {
+                            // Return an empty container if the conditions are not met
+                            return SizedBox.shrink();
+                          }
+                        },
                       ),
-
                       Expanded(
-
                           child: Container(
                         margin: const EdgeInsets.symmetric(
                             horizontal: 15.0, vertical: 8.0),
@@ -179,7 +188,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                           : Column(
                               children: [
                                 const Divider(),
-                               AnimatedCrossFade(
+                                AnimatedCrossFade(
                                   duration: const Duration(milliseconds: 300),
                                   crossFadeState: !fullScreen
                                       ? CrossFadeState.showFirst
@@ -346,10 +355,9 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
             )
           : const WaitingToJoin(),
     );
-
   }
 
-  Widget _buildLogoutButton() {
+  Widget buildCreateMoreButton() {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.blue.shade900,
@@ -358,7 +366,11 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       ),
-      icon: const Icon(Icons.video_camera_front_outlined, color: Colors.white,size: 25,),
+      icon: const Icon(
+        Icons.video_camera_front_outlined,
+        color: Colors.white,
+        size: 25,
+      ),
       label: Text(
         "Create More Rooms",
         style: GoogleFonts.poppins(
@@ -375,6 +387,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
       },
     );
   }
+
   void registerMeetingEvents(Room _meeting) {
     // Called when joined in meeting
     _meeting.on(
@@ -401,7 +414,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
       }
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) =>  TeacherScreen()),
+          MaterialPageRoute(builder: (context) => TeacherScreen()),
           (route) => false);
     });
 
