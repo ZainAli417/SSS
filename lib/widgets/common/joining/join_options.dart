@@ -76,8 +76,8 @@ class JoinOptions extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.symmetric(vertical: 16),
-            color: black750,
-            child: const Text("Join Meeting", style: TextStyle(fontSize: 16, color: Colors.white)),
+            color: Colors.white10,
+            child: const Text("Have A Meeting Code Proceed to Join Meeting", style: TextStyle(fontSize: 14, color: Colors.white)),
             onPressed: () => onOptionSelected(false),
           ),
         if (isJoinMeetingSelected != null && isCreateMeetingSelected != null)

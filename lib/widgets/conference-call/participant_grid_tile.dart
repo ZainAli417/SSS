@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:videosdk/videosdk.dart';
 import 'package:videosdk_flutter_example/constants/colors.dart';
 import 'package:videosdk_flutter_example/widgets/common/stats/call_stats.dart';
+
+import '../../providers/role_provider.dart';
 
 class ParticipantGridTile extends StatefulWidget {
   final Participant participant;
@@ -83,7 +86,7 @@ class _ParticipantGridTileState extends State<ParticipantGridTile> {
       ),
       child: Stack(
         children: [
-          videoStream != null
+          videoStream == null
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: RTCVideoView(
@@ -93,16 +96,34 @@ class _ParticipantGridTileState extends State<ParticipantGridTile> {
                 )
               : Center(
                   child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
+
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
                       color: black500,
+                      borderRadius: BorderRadius.circular(2),
+
                     ),
-                    child: Text(
-                      widget.participant.displayName.characters.first
-                          .toUpperCase(),
-                      style: const TextStyle(fontSize: 30),
-                    ),
+                    child: Consumer<RoleProvider>(
+                        builder: (context, roleProvider, child) {
+                      if (roleProvider.isStudent) {
+                        return Text(
+                          widget.participant.displayName.characters.first
+                              .toUpperCase(),
+                          style: const TextStyle(fontSize: 20,color: Colors.white),
+                        );
+                      } else if (roleProvider.isTeacher) {
+                        return Text(
+                          'Teacher'.toUpperCase(),
+                          style: const TextStyle(fontSize: 30,color: Colors.redAccent),
+                        );
+                      } else {
+                        return Text(
+                          'Coordinator'.toUpperCase(),
+                          style: const TextStyle(fontSize: 30,color: Colors.greenAccent),
+                        );
+                      }
+                    }),
                   ),
                 ),
           if (audioStream == null)
@@ -129,16 +150,20 @@ class _ParticipantGridTileState extends State<ParticipantGridTile> {
                   color: black700,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(widget.participant.isLocal
-                    ? "You"
-                    : widget.participant.displayName,  style: const TextStyle(
-    fontWeight: FontWeight.bold, fontSize: 16,color: Colors.white),
-    )),
+                child: Text(
+                  widget.participant.isLocal
+                      ? "You"
+                      : widget.participant.displayName,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white),
+                )),
           ),
-           Positioned(
-               top: 4,
-               left: 4,
-               child: CallStats(participant: widget.participant)),
+          Positioned(
+              top: 4,
+              left: 4,
+              child: CallStats(participant: widget.participant)),
         ],
       ),
     );

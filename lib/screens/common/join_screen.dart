@@ -343,6 +343,8 @@ class _JoinScreenState extends State<JoinScreen> with WidgetsBindingObserver {
                                 );
                               },
                             );
+
+
                           },
                         ),
                       ],
@@ -365,11 +367,12 @@ class _JoinScreenState extends State<JoinScreen> with WidgetsBindingObserver {
                   return IntrinsicHeight(
                     child: kIsWeb || Platform.isWindows || Platform.isMacOS
                         ? Container(
-                            margin: const EdgeInsets.fromLTRB(40, 150, 40, 150),
+                            margin: const EdgeInsets.all(10),
                             child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
                                 children: [
+                                 /*
                                   SizedBox(
                                     height: maxHeight,
                                     width: maxWidth / 2,
@@ -447,6 +450,8 @@ class _JoinScreenState extends State<JoinScreen> with WidgetsBindingObserver {
                                       ],
                                     ),
                                   ),
+
+                                  */
                                   Container(
                                     margin: EdgeInsets.only(top: maxWidth / 10),
                                     child: JoinOptions(
@@ -471,7 +476,7 @@ class _JoinScreenState extends State<JoinScreen> with WidgetsBindingObserver {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                                 SizedBox(
-                                  height: 400,
+                                  height: 1,
                                   width: maxWidth,
                                   child: JoinView(
                                     cameraRenderer: cameraRenderer,

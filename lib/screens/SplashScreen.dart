@@ -73,11 +73,15 @@ class _SplashScreenState extends State<SplashScreen>
                 child: FadeTransition(
                   opacity: _fadeAnimationLogo,
                   child: Center(
-                    child: SvgPicture.asset(
-                      'assets/appLogo.svg',
-                      width: 200,
-                      height: 200,
+                    child: ClipPath(
+                      child: Image.asset(
+                        'assets/logo.png', // Path to your PNG asset
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover, // Ensure the image scales properly within the circle
+                      ),
                     ),
+
                   ),
                 ),
               ),
@@ -95,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
                     SizedBox(height: 20),
                     _buildRoleButton(
                       context,
-                      'Principal/Monitor',
+                      'Coordinator/HOD',
                           () {
                         Provider.of<RoleProvider>(context, listen: false)
                             .setRole('Principal');
@@ -134,11 +138,11 @@ class _SplashScreenState extends State<SplashScreen>
                         );
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     _buildRoleButton(
                       context,
-                      'Parents/Audience',
+                      'Visitors',
                           () {
                         Provider.of<RoleProvider>(context, listen: false)
                             .setRole('Student');

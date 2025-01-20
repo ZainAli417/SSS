@@ -39,7 +39,7 @@ class _SelectVideoDeviceState extends State<SelectVideoDevice> {
         children: [
           widget.videoDevices != null &&
                   widget.videoDevices!.isNotEmpty &&
-                  widget.isCameraPermissionAllowed == true
+                  widget.isCameraPermissionAllowed == false
               ? ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(), 
@@ -48,7 +48,7 @@ class _SelectVideoDeviceState extends State<SelectVideoDevice> {
                     if (index == widget.videoDevices!.length) {
                       return ListTile(
                         leading: Icon(Icons.close, color: Colors.white),
-                        title: Text(
+                        title: const Text(
                           "Cancel",
                           style: TextStyle(color: Colors.white),
                         ),
@@ -79,7 +79,7 @@ class _SelectVideoDeviceState extends State<SelectVideoDevice> {
                     }
                   },
                 )
-              : Text(
+              : const Text(
                   "Permission Denied",
                   style: TextStyle(fontSize: 15, color: black500),
                 ),

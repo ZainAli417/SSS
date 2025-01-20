@@ -16,6 +16,7 @@ import 'package:videosdk_flutter_example/screens/TeacherScreen.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'constants/colors.dart';
+import 'firebase_options.dart';
 import 'navigator_key.dart';
 
 
@@ -35,7 +36,9 @@ void main() async {
     windowManager.setResizable(false);
     windowManager.setMaximizable(false);
   }
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, // Initialize Firebase
+  );
 
   runApp(const MyApp());
 }

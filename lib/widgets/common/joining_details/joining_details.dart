@@ -114,7 +114,10 @@ class _JoiningDetailsState extends State<JoiningDetails> {
                 return;
               }
               widget.onClickMeetingJoin(
-                  _meetingId.trim(), meetingMode, _displayName.trim());
+                  _meetingId.trim(), meetingMode, _displayName.trim()
+//funtion to store meeting display name
+
+              );
             }),
 
 

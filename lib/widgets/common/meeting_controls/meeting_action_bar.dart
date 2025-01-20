@@ -139,7 +139,9 @@ class MeetingActionBar extends StatelessWidget {
           ),
 
           // Camera Control
+         /*
           TouchRippleEffect(
+
             borderRadius: BorderRadius.circular(12),
             rippleColor: primaryColor,
             onTap: onCameraButtonPressed,
@@ -159,7 +161,7 @@ class MeetingActionBar extends StatelessWidget {
                 color: isCamEnabled ? Colors.white : primaryColor,
               ),
             ),
-          ),
+          ),*/
 
           /* TouchRippleEffect(
             borderRadius: BorderRadius.circular(12),

@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:touch_ripple_effect/touch_ripple_effect.dart';
 import 'package:videosdk/videosdk.dart';
 import 'package:videosdk_flutter_example/constants/colors.dart';
@@ -15,6 +18,10 @@ import 'package:videosdk_flutter_example/widgets/common/chat/chat_view.dart';
 import 'package:videosdk_flutter_example/widgets/common/participant/participant_list.dart';
 import 'package:videosdk_webrtc/flutter_webrtc.dart';
 import 'package:videosdk_flutter_example/widgets/common/screen_share/screen_select_dialog.dart';
+
+import '../../../providers/role_provider.dart';
+import '../../../screens/SplashScreen.dart';
+import '../../../screens/common/join_screen.dart';
 
 class WebMeetingAppBar extends StatefulWidget {
   final String token;
@@ -47,6 +54,8 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
   List<AudioDeviceInfo>? mics;
   List<AudioDeviceInfo>? speakers;
   List<VideoDeviceInfo>? cameras;
+  String? selectedTeacher;
+  List<String> teacherList = [];
 
   @override
   void initState() {
@@ -54,6 +63,28 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
     fetchVideoDevices();
     fetchAudioDevices();
     super.initState();
+    fetchTeachers();
+  }
+  void fetchTeachers() async {
+    try {
+      var snapshot = await FirebaseFirestore.instance
+          .collection('room_metadata')
+          .doc('i5NpyLzF5fE1zKyPa9r1') // Correct document path
+          .get();
+
+      if (snapshot.exists) {
+        var data = snapshot.data();
+        if (data != null && data.containsKey('teacher_list')) {
+          // teacher_list is a field
+          List<dynamic> fetchedTeachers = data['teacher_list'];
+          setState(() {
+            teacherList = List<String>.from(fetchedTeachers);
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching teachers: $e');
+    }
   }
 
   @override
@@ -62,6 +93,44 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
       padding: const EdgeInsets.fromLTRB(12.0, 10.0, 8.0, 0.0),
       child: Row(
         children: [
+          // Go Back Arrow
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+              onPressed: () {
+                Consumer<RoleProvider>(
+                  builder: (context, roleProvider, child) {
+                    // Pop the current screen and call meetin.leave() method
+                    Navigator.pop(context);
+                    widget.meeting.leave(); // Call meetin.leave() method
+
+                    // Check the role and navigate to the appropriate screen
+                    if (roleProvider.isPrincipal) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => SplashScreen()), // Navigate to Splash screen
+                      );
+                    } else if (roleProvider.isTeacher || roleProvider.isStudent) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen
+                      );
+                    } else {
+                      // Fallback case, if there are other roles not accounted for
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen
+                      );
+                    }
+
+                    return Container(); // Return a placeholder widget
+                  },
+                );
+              }
+
+          ),
           if (widget.recordingState == "RECORDING_STARTING" ||
               widget.recordingState == "RECORDING_STOPPING" ||
               widget.recordingState == "RECORDING_STARTED")
@@ -80,6 +149,7 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
                     Text(
                       widget.meeting.id,
                       style: const TextStyle(
+                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -90,6 +160,7 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
                         child: Icon(
                           Icons.copy,
                           size: 16,
+                          color: Colors.white,
                         ),
                       ),
                       onTap: () {
@@ -102,461 +173,113 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
                     ),
                   ],
                 ),
-                // VerticalSpacer(),
-                Text(
-                  elapsedTime == null
-                      ? "00:00:00"
-                      : elapsedTime.toString().split(".").first,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: black400),
-                )
+                /*Text(
+                    elapsedTime == null
+                        ? "00:00:00"
+                        : elapsedTime.toString().split(".").first,
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey),
+                  )*/
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TouchRippleEffect(
-              borderRadius: BorderRadius.circular(12),
-              rippleColor: primaryColor,
-              onTap: () {
-                if (widget.recordingState == "RECORDING_STOPPING") {
-                  showSnackBarMessage(
-                      message: "Recording is in stopping state",
-                      context: context);
-                } else if (widget.recordingState == "RECORDING_STARTED") {
-                  widget.meeting.stopRecording();
-                } else if (widget.recordingState == "RECORDING_STARTING") {
-                  showSnackBarMessage(
-                      message: "Recording is in starting state",
-                      context: context);
-                } else {
-                  widget.meeting.startRecording();
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: secondaryColor),
-                  color: primaryColor,
-                ),
-                padding: const EdgeInsets.all(11),
-                child: SvgPicture.asset(
-                  "assets/ic_recording.svg",
-                  width: 23,
-                  height: 23,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          // Mic Control
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TouchRippleEffect(
-              borderRadius: BorderRadius.circular(12),
-              rippleColor: primaryColor,
-              onTap: () {
-                if (widget.isMicEnabled) {
-                  widget.meeting.muteMic();
-                } else {
-                  widget.meeting.unmuteMic();
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: secondaryColor),
-                  color: primaryColor,
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-                child: Row(
-                  children: [
-                    Icon(
-                      widget.isMicEnabled ? Icons.mic : Icons.mic_off,
-                      size: 25,
-                      color: Colors.white,
-                    ),
-                    PopupMenuButton(
-                      onOpened: () async {
-                        fetchAudioDevices();
-                      },
-                      position: PopupMenuPosition.over,
-                      padding: const EdgeInsets.all(0),
-                      color: black700,
-                      constraints: const BoxConstraints.tightFor(width: 330),
-                      offset: const Offset(0, 45),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.white,
-                      ),
-                      onSelected: (value) {
-                        if (value == 'label') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Please select device')));
-                        } else {
-                          AudioDeviceInfo deviceInfo = value as AudioDeviceInfo;
-
-                          if (deviceInfo.kind == "audiooutput") {
-                            widget.meeting.switchAudioDevice(deviceInfo);
-                          } else if (deviceInfo.kind == "audioinput") {
-                            widget.meeting.changeMic(deviceInfo);
-                          }
-                        }
-                      },
-                      itemBuilder: (context) {
-                        return [
-                          _buildMeetingPoupItem('label', 'Microphones', null,
-                              leadingIcon: const Icon(Icons.mic,
-                                  color: Color.fromARGB(255, 128, 125, 125),
-                                  size: 20),
-                              textColor: const Color.fromARGB(255, 128, 125, 125)),
-                          PopupMenuItem(
-                            padding: EdgeInsets.zero,
-                            child: mics != null && mics!.isNotEmpty
-                                ? Column(
-                                    children: mics!
-                                        .map(
-                                          (e) => _buildMeetingPoupItem(
-                                            e,
-                                            e.label,
-                                            null,
-                                            isSelected: e.deviceId ==
-                                                    widget.meeting.selectedMic
-                                                        ?.deviceId
-                                                ? true
-                                                : false,
-                                            leadingIcon: e.deviceId ==
-                                                    widget.meeting.selectedMic
-                                                        ?.deviceId
-                                                ? const Icon(
-                                                    Icons.check_circle,
-                                                    color: Color.fromRGBO(
-                                                        58, 165, 93, 1),
-                                                    size: 20,
-                                                  )
-                                                : SizedBox(
-                                                    width: 20,
-                                                    height: 20,
-                                                  ),
-                                          ),
-                                        )
-                                        .toList())
-                                : const Text("No Microphone Devices found."),
+          Consumer<RoleProvider>(
+            builder: (context, roleProvider, child) {
+              if (roleProvider.isPrincipal) {
+                return Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      DropdownButtonFormField<String>(
+                        value: selectedTeacher,
+                        hint:  Text(
+                          "Assign Meeting",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
                           ),
-                          _buildMeetingPoupItem('label', 'Speakers', null,
-                              leadingIcon: const Icon(
-                                Icons.volume_up,
-                                color: Color.fromARGB(255, 128, 125, 125),
-                                size: 20
-                              ),
-                              textColor: const Color.fromARGB(255, 128, 125, 125)),
-                          PopupMenuItem(
-                            padding: EdgeInsets.zero,
-                            child: speakers != null && speakers!.isNotEmpty
-                                ? Column(
-                                    children: speakers!
-                                        .map(
-                                          (e) => _buildMeetingPoupItem(
-                                              e, e.label, null,
-                                              isSelected: e.deviceId ==
-                                                      widget
-                                                          .meeting
-                                                          .selectedSpeaker
-                                                          ?.deviceId
-                                                  ? true
-                                                  : false,
-                                              leadingIcon: e.deviceId ==
-                                                      widget
-                                                          .meeting
-                                                          .selectedSpeaker
-                                                          ?.deviceId
-                                                  ? const Icon(
-                                                      Icons.check_circle,
-                                                      color: Color.fromRGBO(
-                                                          58, 165, 93, 1),
-                                                      size: 20,
-                                                    )
-                                                  : SizedBox(
-                                                      width: 20,
-                                                      height: 20,
-                                                    )),
-                                        )
-                                        .toList())
-                                : const Text("No Speaker Devices found."),
-                          )
-                        ];
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Camera Control
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TouchRippleEffect(
-              borderRadius: BorderRadius.circular(12),
-              rippleColor: primaryColor,
-              onTap: () {
-                if (widget.isCamEnabled) {
-                  widget.meeting.disableCam();
-                } else {
-                  widget.meeting.enableCam();
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: secondaryColor),
-                  color: primaryColor,
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-                child: Row(
-                  children: [
-                    Icon(
-                      widget.isCamEnabled ? Icons.videocam : Icons.videocam_off,
-                      size: 25,
-                      color: Colors.white,
-                    ),
-                    PopupMenuButton(
-                      onOpened: () async {
-                        fetchVideoDevices();
-                      },
-                      position: PopupMenuPosition.over,
-                      padding: const EdgeInsets.all(0),
-                      color: black700,
-                      constraints: const BoxConstraints.tightFor(width: 330),
-                      offset: const Offset(0, 45),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.white,
-                      ),
-                      onSelected: (value) {
-                        VideoDeviceInfo camera = value as VideoDeviceInfo;
-                        if (camera.deviceId !=
-                            widget.meeting.selectedCam?.deviceId) {
-                          widget.meeting.changeCam(camera);
-                        }
-                      },
-                      itemBuilder: (context) {
-                        return [
-                          PopupMenuItem(
-                            padding: EdgeInsets.zero,
-                            child: cameras != null && cameras!.isNotEmpty
-                                ? Column(
-                                    children: cameras!
-                                        .map(
-                                          (e) => _buildMeetingPoupItem(
-                                              e, e.label, null,
-                                              isSelected: e.deviceId ==
-                                                      widget.meeting.selectedCam
-                                                          ?.deviceId
-                                                  ? true
-                                                  : false, leadingIcon: e.deviceId ==
-                                                    widget.meeting.selectedCam
-                                                        ?.deviceId
-                                                ? const Icon(
-                                              Icons.check_circle,
-                                              color: Color.fromRGBO(
-                                                  58, 165, 93,1),
-                                                  size: 20,
-                                            ) : SizedBox(width: 20, height: 20,)),
-                                        )
-                                        .toList())
-                                : const Text("No Camera Devices found."),
+                        ),
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.white),
+                        dropdownColor: Colors.black87,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.black26,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                            const BorderSide(color: Colors.white70),
                           ),
-                        ];
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TouchRippleEffect(
-              borderRadius: BorderRadius.circular(12),
-              rippleColor: primaryColor,
-              onTap: () {
-                if (!widget.isRemoteScreenShareEnabled) {
-                  if (!widget.isLocalScreenShareEnabled) {
-                    if (!kIsWeb) {
-                      selectScreenSourceDialog(context).then((value) => {
-                            if (value != null)
-                              {widget.meeting.enableScreenShare(value)}
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
+                        ),
+                        items: teacherList.map((String teacher) {
+                          return DropdownMenuItem<String>(
+                            value: teacher,
+                            child: Text(teacher),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedTeacher = newValue;
                           });
-                    } else {
-                      widget.meeting.enableScreenShare();
-                    }
-                  } else {
-                    widget.meeting.disableScreenShare();
-                  }
-                } else {
-                  showSnackBarMessage(
-                      message: "Someone is already presenting",
-                      context: context);
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: secondaryColor),
-                  color: primaryColor,
-                ),
-                padding: const EdgeInsets.all(10),
-                child: SvgPicture.asset(
-                  widget.isLocalScreenShareEnabled
-                      ? "assets/ic_stop_screen_share.svg"
-                      : "assets/ic_screen_share.svg",
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TouchRippleEffect(
-              borderRadius: BorderRadius.circular(12),
-              rippleColor: primaryColor,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      backgroundColor: Colors.transparent,
-                      insetPadding: const EdgeInsets.all(0.0),
-                      content: SizedBox(
-                        width: kIsWeb
-                            ? MediaQuery.of(context).size.width / 2.3
-                            : MediaQuery.of(context).size.width / 1.7,
-                        height: kIsWeb
-                            ? MediaQuery.of(context).size.height / 1.5
-                            : MediaQuery.of(context).size.height / 1.7,
-                        child: ChatView(meeting: widget.meeting),
+                          if (newValue != null) {
+                            savedata(newValue);
+                          }
+                        },
                       ),
-                    );
-                  },
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: secondaryColor),
-                  color: primaryColor,
-                ),
-                padding: const EdgeInsets.all(11),
-                child: SvgPicture.asset(
-                  "assets/ic_chat.svg",
-                  width: 23,
-                  height: 23,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TouchRippleEffect(
-              borderRadius: BorderRadius.circular(12),
-              rippleColor: primaryColor,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      backgroundColor: Colors.transparent,
-                      insetPadding: const EdgeInsets.all(0.0),
-                      content: SizedBox(
-                        width: kIsWeb
-                            ? MediaQuery.of(context).size.width / 2.3
-                            : MediaQuery.of(context).size.width / 1.7,
-                        height: kIsWeb
-                            ? MediaQuery.of(context).size.height / 1.5
-                            : MediaQuery.of(context).size.height / 1.7,
-                        child: ParticipantList(meeting: widget.meeting),
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: secondaryColor),
-                  color: primaryColor,
-                ),
-                padding: const EdgeInsets.all(10),
-                child: const Icon(
-                  Icons.people,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: PopupMenuButton(
-                position: PopupMenuPosition.under,
-                padding: const EdgeInsets.all(0),
-                color: black700,
-                icon: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: red),
-                      color: red,
-                      shape: BoxShape.rectangle),
-                  child: const Icon(
-                    Icons.call_end,
-                    size: 30,
-                    color: Colors.white,
+                    ],
                   ),
-                ),
-                offset: const Offset(0, 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                onSelected: (value) => {
-                      if (value == "leave")
-                        widget.meeting.leave()
-                      else if (value == "end")
-                        widget.meeting.end()
-                    },
-                itemBuilder: (context) => <PopupMenuEntry>[
-                      _buildMeetingPoupItem(
-                        "leave",
-                        "Leave",
-                        "Only you will leave the call",
-                        leadingIcon: SvgPicture.asset("assets/ic_leave.svg"),
-                      ),
-                      const PopupMenuDivider(),
-                      _buildMeetingPoupItem(
-                        "end",
-                        "End",
-                        "End call for all participants",
-                        leadingIcon: SvgPicture.asset("assets/ic_end.svg"),
-                      ),
-                    ]),
+                );
+              } else {
+                // Return an empty container if the conditions are not met
+                return SizedBox.shrink();
+              }
+            },
+          ),
+          IconButton(
+            icon: SvgPicture.asset(
+              "assets/ic_switch_camera.svg",
+              height: 24,
+              width: 24,
+            ),
+            onPressed: () {
+              VideoDeviceInfo? newCam = cameras?.firstWhere((camera) =>
+              camera.deviceId != widget.meeting.selectedCam?.deviceId);
+              if (newCam != null) {
+                widget.meeting.changeCam(newCam);
+              }
+            },
           ),
         ],
       ),
+
     );
+  }
+  void savedata(String teacher) async {
+    try {
+      // Add a new document with auto-generated ID
+      await FirebaseFirestore.instance.collection('meeting_record').add({
+        'assigned_to': teacher,
+        'room_id': widget.meeting.id,
+        'room_name': 'Zain Ali',
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Meeting assigned to $selectedTeacher')),
+      );
+    } catch (e) {
+      print('Error assigning meeting: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to assign meeting')),
+      );
+    }
   }
 
   Future<void> startTimer() async {

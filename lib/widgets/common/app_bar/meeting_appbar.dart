@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:videosdk/videosdk.dart';
 import 'package:videosdk_flutter_example/constants/colors.dart';
+import 'package:videosdk_flutter_example/screens/SplashScreen.dart';
+import 'package:videosdk_flutter_example/screens/common/join_screen.dart';
 import 'package:videosdk_flutter_example/utils/api.dart';
 import 'package:videosdk_flutter_example/utils/spacer.dart';
 import 'package:videosdk_flutter_example/utils/toast.dart';
@@ -15,6 +17,7 @@ import 'package:videosdk_flutter_example/widgets/common/app_bar/recording_indica
 
 import '../../../providers/role_provider.dart';
 import '../../../providers/teacher_provider.dart';
+import '../../../screens/TeacherScreen.dart';
 
 class MeetingAppBar extends StatefulWidget {
   final String token;
@@ -94,9 +97,38 @@ class MeetingAppBarState extends State<MeetingAppBar> {
                 Icons.arrow_back,
                 color: Colors.white,
               ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+                onPressed: () {
+                  Consumer<RoleProvider>(
+                    builder: (context, roleProvider, child) {
+                      // Pop the current screen and call meetin.leave() method
+                      Navigator.pop(context);
+                      widget.meeting.leave(); // Call meetin.leave() method
+
+                      // Check the role and navigate to the appropriate screen
+                      if (roleProvider.isPrincipal) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => SplashScreen()), // Navigate to Splash screen
+                        );
+                      } else if (roleProvider.isTeacher || roleProvider.isStudent) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen
+                        );
+                      } else {
+                        // Fallback case, if there are other roles not accounted for
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen
+                        );
+                      }
+
+                      return Container(); // Return a placeholder widget
+                    },
+                  );
+                }
+
+
             ),
             if (widget.recordingState == "RECORDING_STARTING" ||
                 widget.recordingState == "RECORDING_STOPPING" ||

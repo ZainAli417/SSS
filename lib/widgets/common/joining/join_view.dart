@@ -21,8 +21,9 @@ class JoinView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
+    return Row();
+    /*   Column(
+     children: [
         LayoutBuilder(
           builder: (context, constraints) {
             double aspectRatio =
@@ -51,13 +52,16 @@ class JoinView extends StatelessWidget {
               width: width,
               child: Stack(
                 alignment: Alignment.topCenter,
+
+                /*
                 children: [
+                  /*
                   AspectRatio(
                     aspectRatio: aspectRatio,
                     child: cameraRenderer != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: RTCVideoView(
+                           child: RTCVideoView(
                               cameraRenderer as RTCVideoRenderer,
                               objectFit: RTCVideoViewObjectFit
                                   .RTCVideoViewObjectFitCover,
@@ -74,6 +78,7 @@ class JoinView extends StatelessWidget {
                             ),
                           ),
                   ),
+                  */
                   Positioned(
                     bottom: 20, 
                     child: Center(
@@ -124,11 +129,14 @@ class JoinView extends StatelessWidget {
                     ),
                   ),
                 ],
+                */
+
               ),
             );
           },
         ),
       ],
-    );
+      */
+
   }
 }
