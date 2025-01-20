@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/breakpoint.dart';
 import 'package:responsive_framework/responsive_breakpoints.dart';
+import 'package:videosdk_flutter_example/providers/principal_provider.dart';
 import 'package:videosdk_flutter_example/providers/profile_provider.dart';
 import 'package:videosdk_flutter_example/providers/role_provider.dart';
 import 'package:videosdk_flutter_example/providers/shedule_provider.dart';
 import 'package:videosdk_flutter_example/providers/splash_provider.dart';
 import 'package:videosdk_flutter_example/providers/teacher_provider.dart';
+import 'package:videosdk_flutter_example/providers/topic_provider.dart';
 import 'package:videosdk_flutter_example/screens/SplashScreen.dart';
 import 'package:videosdk_flutter_example/screens/TeacherScreen.dart';
 import 'package:window_manager/window_manager.dart';
@@ -55,6 +57,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TeacherProvider()),
         ChangeNotifierProvider(create: (_) => ScheduleProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => TeacherProvider()),
+        ChangeNotifierProvider(create: (_) => PrincipalProvider()),
+        ChangeNotifierProvider(create: (_) => CreateTopicProvider()),
+
         ChangeNotifierProvider(create: (_) => RoleProvider()),
 
  ],

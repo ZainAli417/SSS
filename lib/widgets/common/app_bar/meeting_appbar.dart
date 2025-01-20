@@ -111,6 +111,7 @@ class MeetingAppBarState extends State<MeetingAppBar> {
                           MaterialPageRoute(builder: (context) => SplashScreen()), // Navigate to Splash screen
                         );
                       } else if (roleProvider.isTeacher || roleProvider.isStudent) {
+
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen

@@ -6,7 +6,6 @@ class PrincipalProvider with ChangeNotifier {
   String principalName = "";
   bool isLoading = true;
   List<Map<String, dynamic>> teacherCards = []; // List to hold all teacher data
-  List<Map<String, dynamic>> approvedTeacherCards = []; // List to hold approved teacher data
 
   PrincipalProvider() {
     _fetchPrincipalName();
@@ -74,10 +73,7 @@ class PrincipalProvider with ChangeNotifier {
   }
 
   void _filterApprovedCards() {
-    approvedTeacherCards = teacherCards
-        .where((card) => card['status'] == 'Approved')
-        .toList(); // Filter approved cards
-    notifyListeners();
+     teacherCards;
   }
 
   Future<void> updateStudyMaterialStatus(String docId, String status) async {

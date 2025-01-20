@@ -108,7 +108,7 @@ class _ParticipantGridTileState extends State<ParticipantGridTile> {
                         builder: (context, roleProvider, child) {
                       if (roleProvider.isStudent) {
                         return Text(
-                          widget.participant.displayName.characters.first
+                          widget.participant.displayName
                               .toUpperCase(),
                           style: const TextStyle(fontSize: 20,color: Colors.white),
                         );

@@ -616,14 +616,17 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                               ],
                             ),
                           );
-                        } else if (roleProvider.isStudent) {
+                        }
+
+
+                        else if (roleProvider.isStudent) {
                           // Return an empty container if the conditions are not met
                           return Expanded(
                             child: SingleChildScrollView(
                               child: Column(
                                 children: [
                                   // Class Teacher Grid
-                                  principalProvider.approvedTeacherCards.isEmpty
+                                  principalProvider.teacherCards.isEmpty
                                       ? Center(
                                           child: Padding(
                                             padding: const EdgeInsets.only(
@@ -642,10 +645,10 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                                               const NeverScrollableScrollPhysics(),
                                           shrinkWrap: true,
                                           itemCount: principalProvider
-                                              .approvedTeacherCards.length,
+                                              .teacherCards.length,
                                           itemBuilder: (context, index) {
                                             final card = principalProvider
-                                                .approvedTeacherCards[index];
+                                                .teacherCards[index];
 
                                             return Card(
                                               color: Colors.white,
@@ -671,34 +674,43 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                                                       ),
                                                     ),
                                                   ),
-                                                  if (card['audioFiles']
-                                                      .isNotEmpty)
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              16.0),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children:
-                                                            card['audioFiles']
-                                                                .map<Widget>(
-                                                                    (audioUrl) {
-                                                          return AudioPlayerWidget(
-                                                            audioUrl: audioUrl,
-                                                            onPlay: () =>
-                                                                _playAudio(
-                                                                    audioUrl),
-                                                            onStop:
-                                                                _stopCurrentAudio,
-                                                            isPlaying:
-                                                                _currentPlayingAudioUrl ==
-                                                                    audioUrl,
-                                                          );
-                                                        }).toList(),
+                                                  ListTile(
+                                                    title: Text(
+                                                      'Lecture Audio Files',
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
+                                                        fontWeight: FontWeight.w500,
                                                       ),
                                                     ),
+                                                    subtitle: Column(
+                                                      crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                      children:
+                                                      List<Widget>.generate(
+                                                          audioFiles.length,
+                                                              (audioIndex) {
+                                                            final audioUrl =
+                                                            audioFiles[audioIndex];
+                                                            return Padding(
+                                                              padding: const EdgeInsets
+                                                                  .symmetric(
+                                                                  vertical: 8),
+                                                              child: AudioPlayerWidget(
+                                                                audioUrl: audioUrl,
+                                                                onPlay: () =>
+                                                                    _playAudio(
+                                                                        audioUrl),
+                                                                onStop: () =>
+                                                                    _stopCurrentAudio(),
+                                                                isPlaying:
+                                                                _currentPlayingAudioUrl ==
+                                                                    audioUrl,
+                                                              ),
+                                                            );
+                                                          }),
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                             );
@@ -720,6 +732,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                                           style: GoogleFonts.poppins(
                                             fontSize: 20,
                                             fontWeight: FontWeight.w600,
+                                            color: Colors.white,
                                           ),
                                         ),
                                         const SizedBox(height: 10),
@@ -1033,6 +1046,7 @@ class _QuizWidgetState extends State<QuizWidget> {
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w600,
+              color: Colors.black
             ),
           ),
           content: const Text('You have finished the quiz.'),
@@ -1102,6 +1116,7 @@ class _QuizWidgetState extends State<QuizWidget> {
                               question['question'],
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
+                                color: Colors.white,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
