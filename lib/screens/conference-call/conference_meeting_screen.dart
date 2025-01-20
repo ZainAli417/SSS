@@ -39,23 +39,22 @@ class ConferenceMeetingScreen extends StatefulWidget {
   final String meetingId, token, displayName;
   final bool micEnabled, camEnabled, chatEnabled;
   final AudioDeviceInfo? selectedAudioOutputDevice, selectedAudioInputDevice;
-
   final CustomTrack? cameraTrack;
   final CustomTrack? micTrack;
 
-  const ConferenceMeetingScreen(
-      {Key? key,
-      required this.meetingId,
-      required this.token,
-      required this.displayName,
-      this.micEnabled = true,
-      this.camEnabled = true,
-      this.chatEnabled = true,
-      this.selectedAudioOutputDevice,
-      this.selectedAudioInputDevice,
-      this.cameraTrack,
-      this.micTrack})
-      : super(key: key);
+  const ConferenceMeetingScreen({
+    Key? key,
+    required this.meetingId,
+    required this.token,
+    required this.displayName,
+    this.micEnabled = true,
+    this.camEnabled = true,
+    this.chatEnabled = true,
+    this.selectedAudioOutputDevice,
+    this.selectedAudioInputDevice,
+    this.cameraTrack,
+    this.micTrack,
+  }) : super(key: key);
 
   @override
   State<ConferenceMeetingScreen> createState() =>
@@ -66,41 +65,32 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
   bool isRecordingOn = false;
   bool showChatSnackbar = true;
   String recordingState = "RECORDING_STOPPED";
-  // Meeting
   late Room meeting;
   bool _joined = false;
-
-  // Streams
   Stream? shareStream;
   Stream? videoStream;
   Stream? audioStream;
   Stream? remoteParticipantShareStream;
-
   bool fullScreen = false;
 
   bool _isLoading = true;
-  List<String> audioFiles = []; // This will hold the audio URLs from Firestore
-  AudioPlayer? _currentAudioPlayer; // Currently playing audio player
-  String? _currentPlayingAudioUrl; // Track which audio URL is currently playing
-
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
+  List<String> audioFiles = [];
+  AudioPlayer? _currentAudioPlayer;
+  String? _currentPlayingAudioUrl;
+  int audioPlayedCount = 0; // Counter to track audio plays for stats
 
   @override
   void initState() {
     super.initState();
-    _fetchAudioFiles(); // Fetch audio files from Firestore
+    _fetchAudioFiles();
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    // Create instance of Room (Meeting)
-    Room room = VideoSDK.createRoom(
+
+    // Create Room instance for the meeting
+    meeting = VideoSDK.createRoom(
       roomId: widget.meetingId,
       token: widget.token,
       customCameraVideoTrack: widget.cameraTrack,
@@ -110,33 +100,98 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
       camEnabled: widget.camEnabled,
       maxResolution: 'hd',
       multiStream: true,
-      //defaultCameraIndex: kIsWeb ? 0 : (Platform.isAndroid || Platform.isIOS) ? 1 : 0,
       notification: const NotificationInfo(
         title: "Video SDK",
         message: "Video SDK is sharing screen in the meeting",
-        icon: "notification_share", // drawable icon name
+        icon: "notification_share",
       ),
     );
 
-    // Register meeting events
-    registerMeetingEvents(room);
+    // Register meeting events and join
+    registerMeetingEvents(meeting);
+    meeting.join();
 
-    // Join meeting
-    room.join();
+    // Store participant stats when the screen loads
+    storeParticipantStats();
   }
 
   Future<void> _fetchAudioFiles() async {
     try {
       QuerySnapshot snapshot =
-          await FirebaseFirestore.instance.collection('Study_material').get();
+      await FirebaseFirestore.instance.collection('Study_material').get();
       setState(() {
         audioFiles = snapshot.docs
             .map((doc) => (doc['AudioFiles'] as List).cast<String>())
             .expand((x) => x)
-            .toList(); // Ensure correct type
+            .toList();
       });
     } catch (e) {
       print("Error fetching audio files: $e");
+    }
+  }
+
+
+  void _playAudio(String audioUrl) async {
+    if (_currentPlayingAudioUrl == audioUrl) {
+      // If the same audio is clicked, pause it
+      setState(() {
+        _currentPlayingAudioUrl = null;
+      });
+      return;
+    }
+
+    // Stop the current audio and start the new one
+    _stopCurrentAudio();
+    try {
+      _currentAudioPlayer = AudioPlayer();
+      await _currentAudioPlayer!.setUrl(audioUrl);
+      await _currentAudioPlayer!.play();
+
+      setState(() {
+        _currentPlayingAudioUrl = audioUrl;
+        audioPlayedCount++; // Increment play count
+      });
+
+      // Update audio play count in Firestore
+      await updateAudioCountInFirestore(audioPlayedCount);
+    } catch (e) {
+      print("Error playing audio: $e");
+    }
+  }
+
+
+  Future<void> storeParticipantStats() async {
+    final participantId = meeting.localParticipant.id; // Retrieve participant ID
+    final data = {
+      'displayName': widget.displayName,
+      'joinTime': DateTime.now().toIso8601String(),
+      'audioPlayedCount': 0, // Initialize audio played count to zero
+      'isLocal': true, // Set to true since this is the local participant
+    };
+
+    final DocumentReference participantDoc =
+    FirebaseFirestore.instance.collection('Stats').doc(participantId);
+
+    await participantDoc.set(data, SetOptions(merge: true));
+    print('Participant stats stored for participant $participantId');
+  }
+
+  Future<void> updateAudioCountInFirestore(int playCount) async {
+    final participantId = meeting.localParticipant.id; // Retrieve participant ID
+    final DocumentReference participantDoc =
+    FirebaseFirestore.instance.collection('Stats').doc(participantId);
+
+    // Update the audio played count
+    await participantDoc.update({'audioPlayedCount': playCount});
+    print('Updated audio played count for participant $participantId: $playCount');
+  }
+
+  void _stopCurrentAudio() {
+    if (_currentAudioPlayer != null) {
+      _currentAudioPlayer?.pause();
+      _currentAudioPlayer?.dispose();
+      _currentAudioPlayer = null;
+      _currentPlayingAudioUrl = null;
     }
   }
 
@@ -144,13 +199,12 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
   Widget build(BuildContext context) {
     final teacherProvider = Provider.of<TeacherProvider>(context);
     final principalProvider = Provider.of<PrincipalProvider>(context);
-
+    final participantId = meeting.localParticipant.id; // Get participant ID
     //Get statusbar height
     final statusbarHeight = MediaQuery.of(context).padding.top;
     bool isWebMobile = kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.iOS ||
             defaultTargetPlatform == TargetPlatform.android);
-
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {
@@ -616,11 +670,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                               ],
                             ),
                           );
-                        }
-
-
-                        else if (roleProvider.isStudent) {
-                          // Return an empty container if the conditions are not met
+                        } else if (roleProvider.isStudent) {
                           return Expanded(
                             child: SingleChildScrollView(
                               child: Column(
@@ -674,43 +724,34 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                                                       ),
                                                     ),
                                                   ),
-                                                  ListTile(
-                                                    title: Text(
-                                                      'Lecture Audio Files',
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 12,
-                                                        color: Colors.grey,
-                                                        fontWeight: FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                    subtitle: Column(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                      children:
-                                                      List<Widget>.generate(
-                                                          audioFiles.length,
-                                                              (audioIndex) {
-                                                            final audioUrl =
-                                                            audioFiles[audioIndex];
-                                                            return Padding(
-                                                              padding: const EdgeInsets
-                                                                  .symmetric(
-                                                                  vertical: 8),
-                                                              child: AudioPlayerWidget(
-                                                                audioUrl: audioUrl,
-                                                                onPlay: () =>
-                                                                    _playAudio(
-                                                                        audioUrl),
-                                                                onStop: () =>
-                                                                    _stopCurrentAudio(),
-                                                                isPlaying:
+                                                  if (card['audioFiles']
+                                                      .isNotEmpty)
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              16.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children:
+                                                            card['audioFiles']
+                                                                .map<Widget>(
+                                                                    (audioUrl) {
+                                                          return AudioPlayerWidget(
+                                                            audioUrl: audioUrl,
+                                                            onPlay: () =>
+                                                                _playAudio(
+                                                                    audioUrl),
+                                                            onStop:
+                                                                _stopCurrentAudio,
+                                                            isPlaying:
                                                                 _currentPlayingAudioUrl ==
                                                                     audioUrl,
-                                                              ),
-                                                            );
-                                                          }),
+                                                          );
+                                                        }).toList(),
+                                                      ),
                                                     ),
-                                                  ),
                                                 ],
                                               ),
                                             );
@@ -758,28 +799,6 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
             )
           : const WaitingToJoin(),
     );
-  }
-
-  void _stopCurrentAudio() {
-    if (_currentAudioPlayer != null) {
-      _currentAudioPlayer?.pause(); // Pause the current audio
-      _currentAudioPlayer?.dispose();
-      _currentAudioPlayer = null;
-      _currentPlayingAudioUrl = null; // Reset the currently playing audio URL
-    }
-  }
-
-  void _playAudio(String audioUrl) {
-    if (_currentPlayingAudioUrl == audioUrl) {
-      // If the same audio is clicked, pause it
-      setState(() {
-        _currentPlayingAudioUrl = null; // Reset to not playing
-      });
-    } else {
-      setState(() {
-        _currentPlayingAudioUrl = audioUrl; // Track currently playing audio URL
-      });
-    }
   }
 
   Widget buildCreateMoreButton() {
@@ -1044,10 +1063,7 @@ class _QuizWidgetState extends State<QuizWidget> {
           title: Text(
             'Quiz Completed',
             style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black
-            ),
+                fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
           ),
           content: const Text('You have finished the quiz.'),
           actions: [

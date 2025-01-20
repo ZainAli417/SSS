@@ -108,19 +108,13 @@ class MeetingAppBarState extends State<MeetingAppBar> {
                       if (roleProvider.isPrincipal) {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => SplashScreen()), // Navigate to Splash screen
-                        );
-                      } else if (roleProvider.isTeacher || roleProvider.isStudent) {
-
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen
+                          MaterialPageRoute(builder: (context) => TeacherScreen()), // Navigate to Splash screen
                         );
                       } else {
                         // Fallback case, if there are other roles not accounted for
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen
+                          MaterialPageRoute(builder: (context) => SplashScreen()), // Navigate to Join screen
                         );
                       }
 

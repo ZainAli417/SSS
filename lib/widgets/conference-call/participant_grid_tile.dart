@@ -86,45 +86,19 @@ class _ParticipantGridTileState extends State<ParticipantGridTile> {
       ),
       child: Stack(
         children: [
-          videoStream == null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: RTCVideoView(
-                    videoStream?.renderer as RTCVideoRenderer,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                  ),
-                )
-              : Center(
+          Center(
                   child: Container(
-
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: black500,
-                      borderRadius: BorderRadius.circular(2),
-
-                    ),
-                    child: Consumer<RoleProvider>(
-                        builder: (context, roleProvider, child) {
-                      if (roleProvider.isStudent) {
-                        return Text(
-                          widget.participant.displayName
-                              .toUpperCase(),
-                          style: const TextStyle(fontSize: 20,color: Colors.white),
-                        );
-                      } else if (roleProvider.isTeacher) {
-                        return Text(
-                          'Teacher'.toUpperCase(),
-                          style: const TextStyle(fontSize: 30,color: Colors.redAccent),
-                        );
-                      } else {
-                        return Text(
-                          'Coordinator'.toUpperCase(),
-                          style: const TextStyle(fontSize: 30,color: Colors.greenAccent),
-                        );
-                      }
-                    }),
-                  ),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: black500,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      child: Text(
+                        widget.participant.displayName.toUpperCase(),
+                        style:
+                            const TextStyle(fontSize: 24, color: Colors.white),
+                      )),
                 ),
           if (audioStream == null)
             Positioned(
