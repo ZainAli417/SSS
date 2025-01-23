@@ -91,13 +91,13 @@ class _ParticipantGridTileState extends State<ParticipantGridTile> {
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         shape: BoxShape.rectangle,
-                        color: black500,
-                        borderRadius: BorderRadius.circular(2),
+                        color: Colors.purple,
+                        borderRadius: BorderRadius.circular(50),
                       ),
                       child: Text(
                         widget.participant.displayName.toUpperCase(),
                         style:
-                            const TextStyle(fontSize: 24, color: Colors.white),
+                            const TextStyle(fontSize: 18, color: Colors.white),
                       )),
                 ),
           if (audioStream == null)
@@ -129,10 +129,12 @@ class _ParticipantGridTileState extends State<ParticipantGridTile> {
                       ? "You"
                       : widget.participant.displayName,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
                       color: Colors.white),
-                )),
+                )
+
+            ),
           ),
           Positioned(
               top: 4,

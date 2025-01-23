@@ -20,6 +20,8 @@ dependencies:
   window_manager: ^0.3.4
   cupertino_icons: ^1.0.6
   google_fonts: ^5.1.0
+  flutter_echarts: ^2.5.0
+  syncfusion_flutter_charts: ^28.1.41
 
   # State Management
   provider: ^6.0.5

@@ -21,6 +21,7 @@ import 'package:videosdk_flutter_example/widgets/common/screen_share/screen_sele
 
 import '../../../providers/role_provider.dart';
 import '../../../screens/SplashScreen.dart';
+import '../../../screens/TeacherScreen.dart';
 import '../../../screens/common/join_screen.dart';
 
 class WebMeetingAppBar extends StatefulWidget {
@@ -65,6 +66,7 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
     super.initState();
     fetchTeachers();
   }
+
   void fetchTeachers() async {
     try {
       var snapshot = await FirebaseFirestore.instance
@@ -99,38 +101,34 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
               Icons.arrow_back,
               color: Colors.white,
             ),
-              onPressed: () {
-                Consumer<RoleProvider>(
-                  builder: (context, roleProvider, child) {
-                    // Pop the current screen and call meetin.leave() method
-                    Navigator.pop(context);
-                    widget.meeting.leave(); // Call meetin.leave() method
+            onPressed: () {
+              // Get the RoleProvider instance
+              final roleProvider =
+                  Provider.of<RoleProvider>(context, listen: false);
 
-                    // Check the role and navigate to the appropriate screen
-                    if (roleProvider.isPrincipal) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => SplashScreen()), // Navigate to Splash screen
-                      );
-                    } else if (roleProvider.isTeacher || roleProvider.isStudent) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen
-                      );
-                    } else {
-                      // Fallback case, if there are other roles not accounted for
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => JoinScreen()), // Navigate to Join screen
-                      );
-                    }
+              // Pop the current screen and call meeting.leave() method
+              Navigator.pop(context);
+              widget.meeting.leave(); // Call meeting.leave() method
 
-                    return Container(); // Return a placeholder widget
-                  },
+              // Check the role and navigate to the appropriate screen
+              if (roleProvider.isPrincipal) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          TeacherScreen()), // Navigate to TeacherScreen
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SplashScreen()), // Navigate to SplashScreen
                 );
               }
-
+            },
           ),
+
           if (widget.recordingState == "RECORDING_STARTING" ||
               widget.recordingState == "RECORDING_STOPPING" ||
               widget.recordingState == "RECORDING_STARTED")
@@ -194,7 +192,7 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
                     children: [
                       DropdownButtonFormField<String>(
                         value: selectedTeacher,
-                        hint:  Text(
+                        hint: Text(
                           "Assign Meeting",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
@@ -211,8 +209,7 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
                           fillColor: Colors.black26,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide:
-                            const BorderSide(color: Colors.white70),
+                            borderSide: const BorderSide(color: Colors.white70),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -251,7 +248,7 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
             ),
             onPressed: () {
               VideoDeviceInfo? newCam = cameras?.firstWhere((camera) =>
-              camera.deviceId != widget.meeting.selectedCam?.deviceId);
+                  camera.deviceId != widget.meeting.selectedCam?.deviceId);
               if (newCam != null) {
                 widget.meeting.changeCam(newCam);
               }
@@ -259,9 +256,9 @@ class WebMeetingAppBarState extends State<WebMeetingAppBar> {
           ),
         ],
       ),
-
     );
   }
+
   void savedata(String teacher) async {
     try {
       // Add a new document with auto-generated ID

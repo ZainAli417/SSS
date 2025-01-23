@@ -97,34 +97,29 @@ class MeetingAppBarState extends State<MeetingAppBar> {
                 Icons.arrow_back,
                 color: Colors.white,
               ),
-                onPressed: () {
-                  Consumer<RoleProvider>(
-                    builder: (context, roleProvider, child) {
-                      // Pop the current screen and call meetin.leave() method
-                      Navigator.pop(context);
-                      widget.meeting.leave(); // Call meetin.leave() method
+              onPressed: () {
+                // Get the RoleProvider instance
+                final roleProvider = Provider.of<RoleProvider>(context, listen: false);
 
-                      // Check the role and navigate to the appropriate screen
-                      if (roleProvider.isPrincipal) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => TeacherScreen()), // Navigate to Splash screen
-                        );
-                      } else {
-                        // Fallback case, if there are other roles not accounted for
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => SplashScreen()), // Navigate to Join screen
-                        );
-                      }
+                // Pop the current screen and call meeting.leave() method
+                Navigator.pop(context);
+                widget.meeting.leave(); // Call meeting.leave() method
 
-                      return Container(); // Return a placeholder widget
-                    },
+                // Check the role and navigate to the appropriate screen
+                if (roleProvider.isPrincipal) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => TeacherScreen()), // Navigate to TeacherScreen
+                  );
+                } else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => SplashScreen()), // Navigate to SplashScreen
                   );
                 }
-
-
+              },
             ),
+
             if (widget.recordingState == "RECORDING_STARTING" ||
                 widget.recordingState == "RECORDING_STOPPING" ||
                 widget.recordingState == "RECORDING_STARTED")

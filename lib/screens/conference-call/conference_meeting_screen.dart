@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -162,10 +163,15 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
 
   Future<void> storeParticipantStats() async {
     final participantId = meeting.localParticipant.id; // Retrieve participant ID
+    final currentTime = DateTime.now();
+
+    // Format the current time as HH:mm:ss
+
     final data = {
       'displayName': widget.displayName,
-      'joinTime': DateTime.now().toIso8601String(),
+      'joinTime': FieldValue.serverTimestamp(), // Store current time as a Timestamp
       'audioPlayedCount': 0, // Initialize audio played count to zero
+      'Q_Marks': 20, // Initialize quiz marks
       'isLocal': true, // Set to true since this is the local participant
     };
 
@@ -175,7 +181,6 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
     await participantDoc.set(data, SetOptions(merge: true));
     print('Participant stats stored for participant $participantId');
   }
-
   Future<void> updateAudioCountInFirestore(int playCount) async {
     final participantId = meeting.localParticipant.id; // Retrieve participant ID
     final DocumentReference participantDoc =
@@ -272,10 +277,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                           ],
                         ),
                       )),
-                      !isWebMobile &&
-                              (kIsWeb || Platform.isMacOS || Platform.isWindows)
-                          ? Container()
-                          : Column(
+                     Column(
                               children: [
                                 const Divider(),
                                 AnimatedCrossFade(
