@@ -57,23 +57,20 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(50),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Row(
         children: [
           IconButton(
             icon: Icon(
-              widget.isPlaying ? Icons.pause : Icons.play_arrow,
-              color: widget.isPlaying ? Colors.red : Colors.green,
+              widget.isPlaying
+                  ? Icons.pause_circle_outline
+                  : Icons.play_arrow_outlined,
+              color: widget.isPlaying ? Colors.green : Colors.red,
+              size: 30,
             ),
             onPressed: () {
               if (widget.isPlaying) {
                 widget.onPlay(); // Notify the parent to play this audio
-
               } else {
                 widget.onPlay(); // Notify the parent to play this audio
               }
@@ -90,7 +87,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
 
                 return SliderTheme(
                   data: const SliderThemeData(
-                    trackHeight: 4,
+                    trackHeight: 5,
                     thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6),
                   ),
                   child: Slider(
@@ -109,14 +106,16 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
           ),
           IconButton(
             icon: Icon(
-              _isLooping ? Icons.loop : Icons.loop_outlined,
-              color: _isLooping ? Colors.red : Colors.black,
+              _isLooping ? Icons.repeat_one_rounded : Icons.repeat_outlined,
+              color: _isLooping ? Colors.green : Colors.red,
+              size: 20,
             ),
             onPressed: () async {
               setState(() {
                 _isLooping = !_isLooping;
               });
-              await _audioPlayer.setLoopMode(_isLooping ? LoopMode.one : LoopMode.off);
+              await _audioPlayer
+                  .setLoopMode(_isLooping ? LoopMode.one : LoopMode.off);
             },
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
@@ -133,16 +132,20 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                 child: Text(
                   _formatDuration(remainingTime),
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black,
                   ),
                 ),
               );
             },
           ),
-        ],
+
+    ],
+
       ),
+
+
     );
   }
 

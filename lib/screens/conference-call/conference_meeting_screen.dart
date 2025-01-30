@@ -32,7 +32,7 @@ import '../../providers/principal_provider.dart';
 import '../../providers/role_provider.dart';
 import '../../providers/teacher_provider.dart';
 import '../../providers/topic_provider.dart';
-import '../Quiz and Audio/quiz screen.dart';
+import '../Quiz and Audio/Audio_Player_UI.dart';
 
 class ConferenceMeetingScreen extends StatefulWidget {
   final String meetingId, token, displayName;
@@ -130,11 +130,10 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
     // Register meeting events and join
     registerMeetingEvents(meeting);
     meeting.join();
-    if (isTeacher) {
+    if (isStudent) {
       // Initialize the timer only for the principal
       storeParticipantStats();
     }
-    // Store participant stats when the screen loads
   }
 
   void _initializeTimer() {
@@ -153,14 +152,17 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
 
         if (_remainingMinutes == 0) {
           _timer?.cancel();
+
+          meeting.end();
+        }
+        Future.delayed(const Duration(milliseconds: 500), () {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
                 builder: (context) =>
                     SplashScreen()), // Navigate to TeacherScreen
           );
-          meeting.end();
-        }
+        });
       });
     });
   }
@@ -175,7 +177,6 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
       }
     });
   }
-
   void _showWarningPopup() {
     showDialog(
       context: context,
@@ -196,7 +197,6 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
       },
     );
   }
-
   void _setupBroadcastListener() {
     final collectionRef =
         FirebaseFirestore.instance.collection('broadcast_voice');
@@ -216,9 +216,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
       });
     });
   }
-
   StreamSubscription? _audioFilesSubscription;
-
   void _setupAudioFilesListener() {
     final collectionRef =
         FirebaseFirestore.instance.collection('Study_material');
@@ -236,58 +234,47 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
       }
     });
   }
-
-  void _playAudio(String audioUrl) async {
+  void _playAudio_simple(String audioUrl) {
     if (_currentPlayingAudioUrl == audioUrl) {
       // If the same audio is clicked, pause it
       setState(() {
-        _currentPlayingAudioUrl = null;
+        _currentPlayingAudioUrl = null; // Reset to not playing
       });
-      return;
-    }
-
-    // Stop the current audio and start the new one
-    _stopCurrentAudio();
-    try {
-      _currentAudioPlayer = AudioPlayer();
-      await _currentAudioPlayer!.setUrl(audioUrl);
-      await _currentAudioPlayer!.play();
-
+    } else {
       setState(() {
-        _currentPlayingAudioUrl = audioUrl;
-        audioPlayedCount++; // Increment play count
+        _currentPlayingAudioUrl = audioUrl; // Track currently playing audio URL
       });
-
-      // Update audio play count in Firestore
-      await updateAudioCountInFirestore(audioPlayedCount);
-    } catch (e) {
-      print("Error playing audio: $e");
     }
   }
 
-  void _playAudio_simple(String audioUrl) async {
+
+
+
+
+
+
+
+  Future<void> _playAudio_stats(String audioUrl) async {
     if (_currentPlayingAudioUrl == audioUrl) {
       // If the same audio is clicked, pause it
       setState(() {
-        _currentPlayingAudioUrl = null;
+        _currentPlayingAudioUrl = null; // Reset to not playing
       });
-      return;
-    }
-
-    // Stop the current audio and start the new one
-    _stopCurrentAudio();
-    try {
-      _currentAudioPlayer = AudioPlayer();
-      await _currentAudioPlayer!.setUrl(audioUrl);
-      await _currentAudioPlayer!.play();
-
+    } else {
       setState(() {
-        _currentPlayingAudioUrl = audioUrl;
+        _currentPlayingAudioUrl = audioUrl; // Track currently playing audio URL
+        audioPlayedCount++; // Increment play count
       });
+      await updateAudioCountInFirestore(audioPlayedCount);
+    }
+  }
 
-      // Update audio play count in Firestore
-    } catch (e) {
-      print("Error playing audio: $e");
+  void _stopCurrentAudio() {
+    if (_currentAudioPlayer != null) {
+      _currentAudioPlayer?.pause(); // Pause the current audio
+      _currentAudioPlayer?.dispose();
+      _currentAudioPlayer = null;
+      _currentPlayingAudioUrl = null; // Reset the currently playing audio URL
     }
   }
 
@@ -323,15 +310,6 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
     await participantDoc.update({'audioPlayedCount': playCount});
     print(
         'Updated audio played count for participant $participantId: $playCount');
-  }
-
-  void _stopCurrentAudio() {
-    if (_currentAudioPlayer != null) {
-      _currentAudioPlayer?.pause();
-      _currentAudioPlayer?.dispose();
-      _currentAudioPlayer = null;
-      _currentPlayingAudioUrl = null;
-    }
   }
 
   @override
@@ -403,13 +381,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                                 ),
                               ),
                             )
-                          :
-
-
-
-
-
-                      Column(
+                          : Column(
                               children: [
                                 // Class Teacher Grid
                                 ListView.builder(
@@ -522,23 +494,30 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                               recordingState: recordingState,
                               // Called when Call End button is pressed
                               onCallEndButtonPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          SplashScreen()), // Navigate to TeacherScreen
-                                );
                                 meeting.end();
+
+                                Future.delayed(
+                                    const Duration(milliseconds: 500), () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            SplashScreen()), // Navigate to TeacherScreen
+                                  );
+                                });
                               },
 
                               onCallLeaveButtonPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          SplashScreen()), // Navigate to TeacherScreen
-                                );
                                 meeting.leave();
+                                Future.delayed(
+                                    const Duration(milliseconds: 500), () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            SplashScreen()), // Navigate to TeacherScreen
+                                  );
+                                });
                               },
                               // Called when mic button is pressed
                               onMicButtonPressed: () {
@@ -978,7 +957,7 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
                                                           return AudioPlayerWidget(
                                                             audioUrl: audioUrl,
                                                             onPlay: () =>
-                                                                _playAudio(
+                                                                _playAudio_stats(
                                                                     audioUrl),
                                                             onStop:
                                                                 _stopCurrentAudio,
@@ -1062,10 +1041,12 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
       ),
       onPressed: () async {
         meeting.leave();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => TeacherScreen()),
-        );
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => TeacherScreen()),
+          );
+        });
       },
     );
   }
@@ -1184,11 +1165,14 @@ class _ConferenceMeetingScreenState extends State<ConferenceMeetingScreen> {
   }
 
   Future<bool> _onWillPopScope() async {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => SplashScreen()),
-    );
     meeting.leave();
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SplashScreen()),
+      );
+    });
     return true;
   }
 
@@ -1522,27 +1506,44 @@ class _QuizWidgetState extends State<QuizWidget> {
               ],
             ),
           )
-        : Center(
-            child: ElevatedButton(
-              onPressed: _startQuiz,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0, vertical: 12.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
+        : Column(children: [
+            Divider(),
+            Center(
               child: Text(
-                'Start Quiz',
+                'Quiz is Based on Lecture #01',
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
+                  fontSize: 14,
+                  color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-          );
+            Divider(),
+            Center(
+              child: ElevatedButton(
+                onPressed: _startQuiz,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0, vertical: 12.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                child: Text(
+                  'Start Quiz',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ]);
   }
 }
+/*
 
 class Create_lecture extends StatefulWidget {
   const Create_lecture({super.key});
@@ -1815,3 +1816,4 @@ class _Create_LectureState extends State<Create_lecture> {
     );
   }
 }
+*/
