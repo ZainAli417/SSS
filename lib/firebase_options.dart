@@ -52,6 +52,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '535015116281',
     projectId: 'zresume-67ec9',
     authDomain: 'zresume-67ec9.firebaseapp.com',
+    databaseURL: 'https://zresume-67ec9-default-rtdb.firebaseio.com',
     storageBucket: 'zresume-67ec9.appspot.com',
     measurementId: 'G-66KJ3N85QH',
   );
@@ -61,6 +62,7 @@ class DefaultFirebaseOptions {
     appId: '1:535015116281:android:0afd6f9a123eddbce88128',
     messagingSenderId: '535015116281',
     projectId: 'zresume-67ec9',
+    databaseURL: 'https://zresume-67ec9-default-rtdb.firebaseio.com',
     storageBucket: 'zresume-67ec9.appspot.com',
   );
 
@@ -69,6 +71,7 @@ class DefaultFirebaseOptions {
     appId: '1:535015116281:ios:f2ad741c017fbbdbe88128',
     messagingSenderId: '535015116281',
     projectId: 'zresume-67ec9',
+    databaseURL: 'https://zresume-67ec9-default-rtdb.firebaseio.com',
     storageBucket: 'zresume-67ec9.appspot.com',
     androidClientId: '535015116281-f8qkrpp4ngeemn4mps3rjnvjmct8had4.apps.googleusercontent.com',
     iosClientId: '535015116281-gqhujleg7amfgva0aac9arr0k6fuhcle.apps.googleusercontent.com',

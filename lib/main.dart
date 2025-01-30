@@ -15,6 +15,7 @@ import 'package:videosdk_flutter_example/providers/teacher_provider.dart';
 import 'package:videosdk_flutter_example/providers/topic_provider.dart';
 import 'package:videosdk_flutter_example/screens/SplashScreen.dart';
 import 'package:videosdk_flutter_example/screens/TeacherScreen.dart';
+import 'package:videosdk_flutter_example/screens/conference-call/conference_meeting_screen.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'constants/colors.dart';
@@ -74,7 +75,7 @@ class MyApp extends StatelessWidget {
             const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
           ],
         ),
-        title: 'VideoSDK Flutter Example',
+        title: 'QISA',
         theme: ThemeData.light().copyWith(
           appBarTheme: const AppBarTheme().copyWith(
             color: primaryColor,
